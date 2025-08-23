@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css">
+    <title>To Do List App your-name</title>
+</head>
+<body class="container mt-5">
+
+    <div id="root"></div>
+
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+        function FormInput({ activity, handleChange, handleSubmit, isEditing }) {
+            return (
+                <form onSubmit={handleSubmit}>
+                    <input
+                        type="text"
+                        className="form-control mb-2"
+                        placeholder="Tambahkan aktivitas..."
+                        value={activity}
+                        onChange={handleChange}
+                    />
+                    <button type="submit" className={`btn btn-${isEditing ? "success" : "primary"} btn-block`}>
+                        {isEditing ? "Simpan" : "Tambah"}
+                    </button>
+                </form>
+            );
+        }
+
+        function Content({ list, handleEdit, handleDelete }) {
+            return (
+                <ul className="list-group mt-3">
+                    {list.length > 0 ? (
+                        list.map((item, index) => (
+                            <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
+                                {item}
+                                <div>
+                                    <button className="btn btn-warning btn-sm mr-2" onClick={() => handleEdit(index)}>Edit</button>
+                                    <button className="btn btn-danger btn-sm" onClick={() => handleDelete(index)}>Hapus</button>
+                                </div>
+                            </li>
+                        ))
+                    ) : (
+                        <li className="list-group-item text-muted">Belum ada aktivitas.</li>
+                    )}
+                </ul>
+            );
+        }
+
+        function TodoApp() {
+            const [activity, setActivity] = React.useState("");
+            const [list, setList] = React.useState([]);
+            const [isEditing, setIsEditing] = React.useState(false);
+            const [editIndex, setEditIndex] = React.useState(null);
+
+            const handleChange = (e) => {
+                setActivity(e.target.value);
+            };
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                if (activity.trim()) {
+                    if (isEditing) {
+                        const updatedList = [...list];
+                        updatedList[editIndex] = activity;
+                        setList(updatedList);
+                        setIsEditing(false);
+                        setEditIndex(null);
+                    } else {
+                        setList([...list, activity]);
+                    }
+                    setActivity("");
+                }
+            };
+
+            const handleEdit = (index) => {
+                setActivity(list[index]);
+                setIsEditing(true);
+                setEditIndex(index);
+            };
+
+            const handleDelete = (index) => {
+                setList(list.filter((_, i) => i !== index));
+            };
+
+            return (
+                <div className="card p-4">
+                    <h2 className="mb-3">To Do List</h2>
+                    <FormInput 
+                        activity={activity} 
+                        handleChange={handleChange} 
+                        handleSubmit={handleSubmit} 
+                        isEditing={isEditing}
+                    />
+                    <Content list={list} handleEdit={handleEdit} handleDelete={handleDelete} />
+                </div>
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById("root")).render(<TodoApp />);
+    </script>
+
+</body>
+</html>
